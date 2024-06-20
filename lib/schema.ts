@@ -11,19 +11,19 @@ const educationSchema = z.object({
 
 const projectSchema = z.object({
     title: z.string().min(1),
-    description: z.string(),
+    project_description: z.string(),
     start_date: z.string().datetime(),
     end_date: z.string().datetime(),
-    technologies: z.array(z.string()),
+    technologies: z.array(z.string()).min(1, 'At least one technology is required'),
     url: z.string().url(),
 });
 
 const workExperienceSchema = z.object({
     company_name: z.string(),
     role: z.string(),
-    start_date: z.string().datetime(),
-    end_date: z.string().datetime(),
-    description: z.string(),
+    work_start_date: z.string().datetime(),
+    work_end_date: z.string().datetime(),
+    work_description: z.string(),
 });
 
 const skillSchema = z.object({
@@ -39,7 +39,9 @@ const userSchema = z.object({
             passwordRegex,
             'Password must be contains at least one uppercase and one lowercase and one digit and one special character'
         ),
-    profile_pic: z.any().refine(file => ['image/jpeg', 'image/png'].includes(file.type), { message: 'Image must be a jpeg or png format' }),
+    profile_pic: z.string().url().refine(url => {
+        return ['.jpeg', '.jpg', '.png'].some(extension => url.toLowerCase().endsWith(extension));
+      }, { message: 'Image URL must end with .jpeg, .jpg, or .png' }),
 });
 
 const formDataSchema = z.object({

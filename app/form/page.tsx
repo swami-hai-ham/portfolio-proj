@@ -15,7 +15,12 @@ type Step = {
 
 const Page = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const methods = useForm();
+  const methods = useForm({
+    defaultValues: {
+      technologies: [],
+      skills: []
+    }
+  });
   const onSubmit = (data: any) => console.log(data);
 
   const steps: Step[] = [{

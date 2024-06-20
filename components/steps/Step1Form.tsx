@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input"
 const Step1Form = () => {
   const { register, formState: { errors } } = useFormContext();
   return (
-    <div className='flex flex-col justify-center items-start'>
+    <div className='flex flex-col justify-center items-center w-96'>
+      <div className='text-2xl font-bold'>User Details</div>
       <div className='m-4'>
         <label>Username</label>
         <Input {...register('username', { required: 'Username is required' })} placeholder='johndoe'/>
@@ -35,7 +36,7 @@ const Step1Form = () => {
     </div>
     <div className='m-4'>
         <label>Image Link</label>
-        <Input {...register('imageLinl', { required: 'Image link is required' })} type="url"/>
+        <Input {...register('imageLink', { required: 'Image link is required' })} type="url"/>
         {errors.imageLink && 
           <p>
             {typeof errors.imageLink.message === 'string' ? errors.imageLink.message : ''}

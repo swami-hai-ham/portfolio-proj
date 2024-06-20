@@ -1,8 +1,19 @@
 import React from 'react'
+import TechnologiesInput from '../ui/TechnologiesInput'
+import { useFormContext } from 'react-hook-form';
 
 const Step5Form = () => {
+  const { register, formState: { errors } } = useFormContext();
   return (
-    <div>Step5Form</div>
+    <div className='flex flex-col justify-center items-center w-96'>
+      <div className='text-2xl font-bold'>Skills</div>
+      <div className='m-4'>
+        <TechnologiesInput />
+        {errors.technologies && 
+          <p>{typeof errors.technologies.message === 'string' ? errors.technologies.message : ''}</p>
+        }
+      </div>
+    </div>
   )
 }
 
