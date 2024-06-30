@@ -9,27 +9,14 @@ import { UserSchema } from '@/lib/schema';
 type FormData = z.infer<typeof UserSchema>;
 
 const Step2Form = () => {
-  const { control, formState: { errors }, trigger } = useFormContext<FormData>();
+  const { control, formState: { errors }} = useFormContext<FormData>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "work",
   });
 
-  useEffect(() => {
-    console.log("Errors:", errors);
-  }, [errors]);
-
-  // Check if there are no fields and add one initially
-  if (fields.length === 0) {
-    append({ name: "", position: "" });
-  }
-
-  const validateFields = async () => {
-    await trigger('work'); // Trigger validation for all fields in 'work' array
-  };
-
   const handleAddField = () => {
-    append({ name: "", position: "" });
+    append({ name: "", position: "", url: "", startDate: new Date(), endDate: new Date(), summary: "", highlights: [] });
   };
 
   const handleRemoveField = (index: number) => {
@@ -71,7 +58,6 @@ const Step2Form = () => {
         </div>
       ))}
       <Button type="button" onClick={handleAddField} className="mt-2">Add Work Experience</Button>
-      <Button type="button" onClick={validateFields} className="mt-2">Validate Fields</Button>
     </div>
   );
 };

@@ -1,10 +1,10 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import StepIndicator from './../components/stepper/StepIndicator';
 import Step1Form from '@/components/stepper/Step1Form';
 import {UserSchema} from '@/lib/schema';
 import {z} from 'zod'
-import { FieldErrors, FormProvider, useForm } from 'react-hook-form';
+import { FieldErrors, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Step2Form from '@/components/stepper/Step2Form';
 import Step3Form from '@/components/stepper/Step3Form';
@@ -21,8 +21,19 @@ export default function Home() {
   const [currentStep, setCurrentStep] = useState(1);
   const methods = useForm<FormData>({
     resolver: zodResolver(UserSchema),
-    mode: "all",
+    mode: "all"
   });
+
+  // Use useWatch to watch all fields
+  const watchedValues = useWatch({
+    control: methods.control
+  });
+
+  // Log the watched values to the console
+  useEffect(() => {
+    console.log("Watched values:", watchedValues);
+  }, [watchedValues]);
+
   const steps = [
     { title: "User Details", stepNumber: 1 },
     { title: "Work", stepNumber: 2 },
@@ -55,7 +66,7 @@ export default function Home() {
         
         <div className='flex justify-center items-start flex-grow py-4'>
         <FormProvider {...methods} >
-              <form onSubmit={methods.handleSubmit(onSubmit)}>
+              <form onSubmit={methods.handleSubmit(onSubmit)} className='flex justify-center items-start w-full flex-grow flex-col px-10'>
                 {stepForms[currentStep -1]}
                 <FormNavigation currentStep={currentStep} setCurrentStep={setCurrentStep} totalSteps={steps.length} steps={steps}/>
                 {currentStep === steps.length && <Button type="submit" className='bg-black text-white'>Submit</Button>}

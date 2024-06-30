@@ -2,29 +2,27 @@
 import { z } from 'zod';
 
 const LocationSchema = z.object({
-  address: z.string({ required_error: 'Address is required' }),
-  postalCode: z.string({ required_error: 'Postal code is required' }),
-  city: z.string({ required_error: 'City is required' }),
-  countryCode: z
-    .string({ required_error: 'Country code is required' })
-    .length(2, 'Country code must be 2 characters'),
-  region: z.string({ required_error: 'Region is required' }),
+  address: z.string({ required_error: 'Address is required' }).min(1, { message: 'Address cannot be empty' }),
+  postalCode: z.string({ required_error: 'Postal code is required' }).min(1, { message: 'Postal code cannot be empty' }).max(6, { message: 'Postal code cannot exceed 6 characters' }),
+  city: z.string({ required_error: 'City is required' }).min(1, { message: 'City name cannot be empty' }),
+  countryCode: z.string({required_error: 'Input is required'}).regex(/^[A-Z]{2}$/, 'Input must be 2 uppercase letters.'),
+  // region: z.string({ required_error: 'Region is required' }),
 });
 
 const ProfileSchema = z.object({
-  network: z.string({ required_error: 'Network is required' }),
-  username: z.string({ required_error: 'Username is required' }),
+  network: z.string({ required_error: 'Network is required' }).min(1, { message: 'Platform name cannot be empty' }),
+  username: z.string({ required_error: 'Username is required' }).min(1, { message: 'Username cannot be empty' }),
   url: z.string({ required_error: 'URL is required' }).url('Invalid URL format'),
 });
 
 const WorkSchema = z.object({
-  name: z.string({ required_error: 'Company name is required' }),
-  position: z.string({ required_error: 'Position is required' }),
-  // url: z.string().url('Invalid URL format'),
-  // startDate: z.date({ required_error: 'Start date is required' }),
-  // endDate: z.date().nullable(),
-  // summary: z.string({ required_error: 'Summary is required' }),
-  // highlights: z.array(z.string()).nullable(),
+  name: z.string({ required_error: 'Company name is required' }).min(1, { message: 'Company name cannot be empty' }),
+  position: z.string({ required_error: 'Position is required' }).min(1, { message: 'Company name cannot be empty' }),
+  url: z.string().url('Invalid URL format'),
+  startDate: z.date({ required_error: 'Start date is required' }),
+  endDate: z.date(),
+  summary: z.string({ required_error: 'Summary is required' }),
+  highlights: z.array(z.string()).nullable(),
 });
 
 const EducationSchema = z.object({
@@ -80,15 +78,15 @@ const ProjectSchema = z.object({
 
 const UserSchema = z.object({
   basics: z.object({
-    name: z.string({ required_error: 'Name is required' }),
-    current_role: z.string({ required_error: 'Role is required' }),
+    name: z.string({ required_error: 'Name is required' }).min(1, { message: 'Name cannot be empty' }),
+    current_role: z.string({ required_error: 'Role is required' }).min(1, { message: 'Role cannot be empty' }),
     image: z.string().url('Invalid URL format'),
-    // email: z.string({ required_error: 'Email is required' }).email('Invalid email format'),
-    // phone: z.string({ required_error: 'Phone number is required' }),
-    // url: z.string().url('Invalid URL format').nullable(),
-    // summary: z.string({ required_error: 'Summary is required' }),
-    // location: LocationSchema,
-    // profiles: z.array(ProfileSchema).nullable(),
+    email: z.string({ required_error: 'Email is required' }).email('Invalid email format'),
+    phone: z.string({required_error: 'Phone number is required'}).regex(/^[0-9]{10}$/, 'Invalid phone number. It should be 10 digits.'),
+    url: z.string().url('Invalid URL format'),
+    summary: z.string({ required_error: 'Summary is required' }).min(1, { message: 'Summary cannot be empty' }).max(80, {message: `can't exceed 80 characters`}),
+    location: LocationSchema,
+    profiles: z.array(ProfileSchema).nullable().optional(),
   }),
   work: z.array(WorkSchema),
   education: z.array(EducationSchema),

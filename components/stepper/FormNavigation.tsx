@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useFormContext } from 'react-hook-form';
+import { Checkbox } from '../ui/checkbox';
+import { Label } from '../ui/label';
 
 interface FormNavigationProps {
   currentStep: number;
@@ -20,8 +22,8 @@ const FormNavigation: React.FC<FormNavigationProps> = ({
   setCurrentStep,
   steps
 }) => {
-
-    const { trigger } = useFormContext();
+  const [notExp, setNotExp] = useState(false);
+  const { trigger } = useFormContext();
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
@@ -40,7 +42,7 @@ const validateStepFields = async (stepNumber: number) => {
 
   switch (stepNumber) {
     case 1:
-      return await trigger(['basics.name', 'basics.current_role', 'basics.image']);
+      return await trigger("basics");
     case 2:
       return await trigger("work");
     case 3:
@@ -54,9 +56,12 @@ const validateStepFields = async (stepNumber: number) => {
 
 const onNext = async () => {
   const isStepValid = await validateStepFields(currentStep);
-  console.log(isStepValid)
+
   if (isStepValid) {
-    if (currentStep < steps.length) {
+    if(notExp && currentStep == 2){
+      setCurrentStep(currentStep + 1);
+    }
+    else if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     }
   } else {
@@ -66,7 +71,18 @@ const onNext = async () => {
 
 
   return (
-    <div className="flex justify-between items-center w-full">
+    <div className='flex flex-col items-center w-full'>
+      {currentStep == 2 && <div className="flex justify-center items-center w-full m-4">
+      <Checkbox id="terms" onCheckedChange={(checked) => {
+        console.log(checked)
+        setNotExp(Boolean(checked))
+        console.log(notExp)
+      }}/>
+      <Label htmlFor="terms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        {"I've no Experience yet"}
+      </Label>
+    </div>}
+      <div className="flex justify-between items-center w-full">
       <Button
         type="button"
         className="bg-black text-white"
@@ -84,6 +100,7 @@ const onNext = async () => {
         Next
       </Button>
       
+    </div>
     </div>
   );
 };
