@@ -3,19 +3,15 @@ import React, { useEffect, useState } from 'react';
 import StepIndicator from './../components/stepper/StepIndicator';
 import Step1Form from '@/components/stepper/Step1Form';
 import {UserSchema} from '@/lib/schema';
-import {z} from 'zod'
-import { FieldErrors, FormProvider, useForm, useWatch } from 'react-hook-form';
+import {FormProvider, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Step2Form from '@/components/stepper/Step2Form';
 import Step3Form from '@/components/stepper/Step3Form';
 import Step4Form from '@/components/stepper/Step4Form';
 import { Button } from '@/components/ui/button';
-import { useFormContext } from 'react-hook-form';
 import FormNavigation from '@/components/stepper/FormNavigation';
-import { UseFormHandleSubmit } from 'react-hook-form';
 
 
-// type FormData = z.infer<typeof UserSchema>
 
 export default function Home() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -23,16 +19,6 @@ export default function Home() {
     resolver: zodResolver(UserSchema),
     mode: "all"
   });
-
-  // Use useWatch to watch all fields
-  const watchedValues = useWatch({
-    control: methods.control
-  });
-
-  // Log the watched values to the console
-  useEffect(() => {
-    console.log("Watched values:", watchedValues);
-  }, [watchedValues]);
 
   const steps = [
     { title: "User Details", stepNumber: 1 },
@@ -49,6 +35,14 @@ export default function Home() {
     <Step4Form key={4}/>
   ]
 
+  const watchedValues = useWatch({
+    control: methods.control
+  });
+
+  // Log the watched values to the console
+  useEffect(() => {
+    console.log("Watched values:", watchedValues);
+  }, [watchedValues]);
 
   const onSubmit = async (data: FormData) => {
     console.log(data)

@@ -1,32 +1,87 @@
 // components/steps/Step1Form.tsx
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { useFormContext, Controller, useFieldArray } from 'react-hook-form';
 import { Input } from "@/components/ui/input"; 
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"; 
 import {UserSchema} from '@/lib/schema';
 import { z } from 'zod';
 import { Textarea } from '../ui/textarea';
-import { Button } from '../ui/button';
+import { Check, ChevronsUpDown, Divide } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 type FormData = z.infer<typeof UserSchema>;
+// Define the allowed fluency values as a union type
+type Fluency = "Beginner" | "Intermediate" | "Advanced" | "Native";
+
+
+
 
 
 const Step1Form = () => {
-  const { control, formState: { errors }, trigger } = useFormContext<FormData>();
-  const { fields, append, remove } = useFieldArray({
+  const { control, formState: { errors }, trigger, setValue } = useFormContext<FormData>();
+
+  const [keyValue, setKeyValue] = useState("")
+  const { fields: profileFields, append: appendProfile, remove: removeProfile } = useFieldArray({
     control,
     name: "basics.profiles",
   });
+  const { fields: languageFields, append: appendLanguage, remove: removeLanguage } = useFieldArray({
+    control,
+    name: "basics.languages",
+  });
+
+  // const { fields: interestFields, append: appendInterest, remove: removeInterest } = useFieldArray({
+  //   control,
+  //   name: "basics.interests",
+  // });
+
+  const fluencyOptions: { value: Fluency, label: string }[] = [
+    { value: "Beginner", label: "Beginner" },
+    { value: "Intermediate", label: "Intermediate" },
+    { value: "Advanced", label: "Advanced" },
+    { value: "Native", label: "Native" },
+  ];
+
+  const keywordRefs = useRef<HTMLInputElement[]>([]);
 
 
-
-  const handleAddField = () => {
-    append({ username: "", url: "", network: ""});
+  const handleAddProfile = () => {
+    appendProfile({ username: "", url: "", network: ""});
   };
 
-  const handleRemoveField = (index: number) => {
-    remove(index);
+  const handleRemoveProfile = (index: number) => {
+    removeProfile(index);
   };
+
+  const handleAddLanguage = () => {
+    appendLanguage({ language: "", fluency: "Beginner"});
+  };
+
+  const handleRemoveLanguage = (index: number) => {
+    removeLanguage(index);
+  };
+
+  // const handleAddInterest = () => {
+  //   appendInterest({ name: "", keywords: []});
+  // };
+
+  // const handleRemoveInterest = (index: number) => {
+  //   removeInterest(index);
+  // };
 
 
   return (
@@ -180,9 +235,9 @@ const Step1Form = () => {
           <FormMessage className='text-red-500'>{errors.basics?.location?.countryCode?.message}</FormMessage>
         </FormItem>
         </div>
-        <div className='text-2xl font-bold my-4'>User Profiles</div>
+        <div className='text-2xl font-bold my-4'>Profiles</div>
         <div className='w-full'>
-        {fields.map((item, index) => (
+        {profileFields.map((item, index) => (
           <div key={item.id} className='my-2'>
           <div className="grid grid-cols-3 mb-4">
             <FormItem className='m-2'>
@@ -225,11 +280,149 @@ const Step1Form = () => {
               <FormMessage className='text-red-500'>{errors?.basics?.profiles?.[index]?.url?.message}</FormMessage>
             </FormItem>
           </div>
-            <Button type="button" onClick={() => handleRemoveField(index)} className="mt-2">Remove</Button>
+            <Button type="button" onClick={() => handleRemoveProfile(index)} className="mt-2">Remove</Button>
         </div>
       ))}
-      <Button type="button" onClick={handleAddField} className="mt-2">Add Profile</Button>
+      <Button type="button" onClick={handleAddProfile} className="mt-2">Add Profile</Button>
         </div>
+        <div className='text-2xl font-bold my-4'>Languages</div>
+        <div className='w-full'>
+        {languageFields && languageFields.map((item, index) => (
+          <div key={item.id} className='my-2'>
+          <div className="grid grid-cols-3 items-center">
+            <FormItem className='m-2'>
+              <FormLabel>Language</FormLabel>
+              <FormControl>
+                <Controller
+                  name={`basics.languages.${index}.language`}
+                  control={control}
+                  render={({ field }) => (
+                    <Input {...field} placeholder='English' />
+                  )}
+                />
+              </FormControl>
+              <FormMessage className='text-red-500'>{errors?.basics?.languages?.[index]?.language?.message}</FormMessage>
+            </FormItem>
+            <FormItem className='flex flex-col mx-2 justify-center'>
+              <FormLabel>Fluency</FormLabel>
+              <FormControl>
+              <Controller
+                name={`basics.languages.${index}.fluency`}
+                control={control}
+                render={({ field }) => (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-[200px] justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                        ? fluencyOptions.find(
+                            (fluency) => fluency.value === field.value
+                          )?.label
+                        : "Select fluency"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Search fluency..." />
+                        <CommandEmpty>No fluency found.</CommandEmpty>
+                        <CommandList>
+                        <CommandGroup>
+                        {fluencyOptions.map((fl) => (
+                        <CommandItem
+                          value={fl.label}
+                          key={fl.value}
+                          onSelect={() => {
+                            setValue(`basics.languages.${index}.fluency`, fl.value)
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              fl.value === field.value
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                          {fl.label}
+                        </CommandItem>
+                      ))}
+                        </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                )}
+              />
+            </FormControl>
+            <FormMessage className='text-red-500'>{errors?.basics?.languages?.[index]?.fluency?.message}</FormMessage>            </FormItem>
+          </div>
+            <Button type="button" onClick={() => handleRemoveLanguage(index)} className="mt-2">Remove</Button>
+        </div>
+      ))}
+      <Button type="button" onClick={handleAddLanguage} className="mt-2">Add Language</Button>
+        </div>
+        {/* <div className='text-2xl font-bold my-4'>Interests</div>
+        <div className='flex flex-col justify-center items-start w-full flex-grow'>
+        {interestFields.map((item, index) => (
+          <div key={item.id} className='my-2'>
+          <div className="grid grid-cols-3 mb-4">
+            <FormItem className='m-2'>
+              <FormLabel>Interest</FormLabel>
+              <FormControl>
+                <Controller
+                  name={`basics.interests.${index}.name`}
+                  control={control}
+                  render={({ field }) => (
+                    <Input {...field} placeholder='Cybersecurity'/>
+                  )}
+                />
+              </FormControl>
+              <FormMessage className='text-red-500'>{errors?.basics?.interests?.[index]?.name?.message}</FormMessage>
+            </FormItem>
+            <FormItem className='m-2'>
+              <FormLabel>Keywords</FormLabel>
+              <FormControl>
+                <Controller
+                  name={`basics.interests.${index}.keywords`}
+                  control={control}
+                  render={({ field }) => (
+                    <div className='flex flex-col justify-center'>
+                      <div className='flex justify-center items-center'>
+                        <Input 
+                          placeholder='White hat' 
+                          type='text' 
+                          ref={(el) => {
+                            if (el) {
+                              keywordRefs.current[index] = el;
+                            }
+                          }} 
+                        />
+                        <Button onClick={() => handleAddKeyword(index)}>Add</Button>
+                      </div>
+                      <div className='flex justify-start items-center'>
+                        {field.value}
+                      </div>
+                    </div>
+                  )}
+                />
+              </FormControl>
+              <FormMessage className='text-red-500'>{errors?.basics?.profiles?.[index]?.username?.message}</FormMessage>
+            </FormItem>
+          </div>
+            <Button type="button" onClick={() => handleRemoveInterest(index)} className="mt-2">Remove</Button>
+        </div>
+      ))}
+      <Button type="button" onClick={handleAddInterest} className="mt-2">Add Interests</Button>
+        </div> */}
     </div>
   );
 };
